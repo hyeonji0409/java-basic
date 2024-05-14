@@ -212,4 +212,15 @@ new MemberConstruct("user", 18, 98);
 -> 자바가 기본 생성자를 만들어주지 않는다면 생성자 기능이 필요하지 않는 경우에도 모든 클래스에 개발자가 직접 기본 생성자를 정의해야 한다. 생성자 기능을 사용하지 않는 경우도 많기 때문에 이런 편의 기능을 제공한다.
 
 
+## this()의 규칙
++ this()는 생성자 코드의 첫줄에만 작성할 수 있다.
+
+```java
+  public MemberConstruct(String name, int age){
+  System.out.println("go");
+  this(name, age, 15);
+}
+```
+위의 경우에서는 this()가 첫번째 줄에 나오지 않고 출력문이 첫번째 줄에 나왔기 때문에 컴파일 오류가 발생한다.
+
 
