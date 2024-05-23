@@ -694,5 +694,89 @@ childMethod()를 찾을 수 없으므로 컴파일 오류가 발생한다
 **다형성 참조의 핵심은 부모는 자식을 품을 수 있는 것이다.**
 
 
+## 다형성과 캐스팅
+Parent poly = new Child()와 같이 부모 타입의 변수를 사용하게 되면 poly.childMethod()와 같은 자식 타입에 있는 기능은 호출할 수 없다.
+
+```java
+import poly.basic.Child;
+import poly.basic.Parent;
+
+public class CastingMain1 {
+  public static void main(String[] args) {
+    // 부모 변수가 자식 인스턴스 참조(다형적 참조)
+    Parent poly = new Child();
+    // 자식의 기능 호출 불가
+    // poly.childMethod();
+    
+    // 다운 캐스팅(부모 타입 -> 자식 타입)
+    Child child = (Child) poly;
+    child.childMethod();
+  }
+}
+```
+
+## 캐스팅
++ 업캐스팅(upcasting): 부모 타입으로 변경
++ 다운캐스팅(downcasting): 자식 타입으로 변경
+
+
+### 다운 캐스팅
+부모는 자식을 담을 수 있지만 자식은 부모를 담을 수 없다. 부모 타입을 사용하는 변수를 자식 타입에 대입하려고 하면 컴파일 오류가 발생한다. 자식은 부모를 담을 수 없기 때문이다.
+이때, 다운 캐스팅이라는 기능을 사용하면 부모 타입을 잠시 자식 타입으로 변경할 수 있다.
+
+```java
+Child child = (Child) poly; // Parent poly
+```
+
+**실행 순서**
+```java
+Child child = (Child) poly;
+Child child = (Child) x001;
+Chlid chlid = x001;
+```
+
+(타입) 처럼 괄호와 그 사이에 타입을 지정함녀 참조 대상을 특정 타입으로 변경할 수 있다. 이렇게 특정 타입으로 변경하는 것을 `캐스팅`이라 한다.
+(Child) poly를 보면 poly는 Parent 타입이다. 이를 (Child)를 사용해서 일시적으로 자식 타입인 Child로 변경하는 것이다.
+위의 코드처럼 캐스팅을 한다고 해서 타입 자체가 변하는 것은 절대 아니다. 해당 참조값을 꺼내고 꺼낸 참조값이 Child 타입이 되는 것이다. poly의 본 타입은 Parent로 기존과 같다.
+
+**캐스팅의 종류**
++ 일시적 다운 캐스팅: `((Child) poly).childMethod();` 참조값을 읽은 후 자식 타입으로 다운 캐스팅. 일시적으로 값을 가져올 때만 다운캐스팅 한다
++ 업캐스팅: 다운캐스팅과 반대로 현재 타입을 부모 타입으로 변경
+
+ 
+## 다운캐스팅의 주의점
+다운캐스팅은 잘못하면 심각한 런타임 오류가 발생할 수 있다.
+
+```java
+public class CastingMain4 {
+    public static void main(String[] args) {
+        Parent parent1= new Child();
+        Child child1= (Child) parent1;
+        child1.childMethod(); // 문제 없음
+
+
+        Parent parent2= new Parent();
+        Child child2= (Child) parent2; // 런타임 오류 - ClassCastException
+        child2.childMethod(); // 실행 불가
+    }
+}
+```
+위의 코드를 실행하면 다음의 오류가 발생한다.
+```
+Exception in thread "main" java.lang.ClassCastException: class poly.basic.Parent cannot be cast to class poly.basic.Child (poly.basic.Parent and poly.basic.Child are in unnamed module of loader 'app')
+	at poly.basic.CastingMain4.main(CastingMain4.java:11)
+```
+두번째 단락의 상황에서 parent2를 new Parent() 부모타입으로 객체를 생성한다면 메모리 상에 자식 타입은 전혀 존재하지 않는다. 생성 결과를 parent2에 담아둔다. 이 경우는 문제가 발생하지 않는다.
+하지만 Child child2 = (Child) parent2;를 호출한다면 문제가 발생한다. parent2는 Parent로 생성이 되었기 때문에 Child를 가지고 있지 않다. 사용이 아예 불가능한 것이다.
+자바에서는 이렇게 사용할 수 없는 타입으로 다운캐스팅 하는 경우 ClassCastException이라는 예외를 발생시킨다. 이 경우 다음 동작이 실행되지 않고 프로그램이 종료된다.
+
+### 업캐스팅이 안전하고 다운캐스팅이 위험한 이유
+업캐스팅의 경우 이런 문제가 발생하지 않는다. 객체를 생성하면 해당 타입의 상위 부모 타입은 모두 함께 생성되기 때문이다. 따라서 상위 클래스로 타입을 변경하는 업캐스팅은 메모리 상에 인스턴스가 모두 존재하기 때문에 항상 안전하다. 따라서 캐스팅을 생략할 수 있는 것이다.
+반면, 다운캐스팅의 경우 인스턴스에 존쟇지 않는 하위 타입으로 캐스팅하는 문제가 발생할 수도 있다. 왜냐하면 객체를 생성하면 부모 타입은 모두 생성되지만 자식 타입은 생성되지 않기 때문이다. 따라서 개발자가 이런 문제를 인지하고 사용해야 한다는 의미로 명시적인 캐스팅을 해줘야 한다.
+
+> **컴파일 오류 vs 런타임 오류**
+> 컴파일 오류는 변수명 오타, 잘못된 클래스 이름 사용 등 자바 프로그램을 실행하기 전에 발생하는 오류이다. 이런 오류는 IDE에서 즉시 확인할 수 있기 때문에 안전하고 좋은 오류이다.
+> 런타임 오류는 이름 그대로 프로그램이 실행되고 있는 시점에 발생하는 오류이다. 런타임 오류는 매우 안좋은 오류이다. 보통 고객이 해당 프로그램을 실행하는 도중에 발생하는 오류이기 때문이다.
+
 
 
