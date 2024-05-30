@@ -5,10 +5,12 @@ public class AnimalPolyMain1 {
         Dog dog = new Dog();
         Cat cat = new Cat();
         Cow cow = new Cow();
+        Duck duck = new Duck();
 
         soundAnimal(dog);
         soundAnimal(cat);
         soundAnimal(cow);
+        soundAnimal(duck);
     }
 
     private static void soundAnimal(Animal animal) {
